@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                             String     @id @default(cuid())
+  email                          String     @unique
+  name                           String?
+  password                       String
+  avatar                         String?
+  bio                            String?
+  location                       String?
+  created_at                     DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime?  @default(now()) @db.Timestamptz(6)
+  cart_items                     CartItem[]
+  listings                       Listing[]
+  orders_orders_buyer_idTousers  Order[]    @relation("orders_buyer_idTousers")
+  orders_orders_seller_idTousers Order[]    @relation("orders_seller_idTousers")
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @default(now()) @db.Timestamptz(6)
+  listings    Listing[]
+
+  @@map("categories")
+}
+
+model Listing {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  price       Decimal        @db.Decimal(10, 2)
+  condition   item_condition
+  brand       String?
+  size        String?
+  color       String?
+  images      String[]       @default([])
+  is_active   Boolean?       @default(true)
+  is_sold     Boolean?       @default(false)
+  seller_id   String
+  category_id String
+  created_at  DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?      @default(now()) @db.Timestamptz(6)
+  cart_items  CartItem[]
+  categories  Category       @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       User           @relation(fields: [seller_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  order_items OrderItem[]
+
+  @@index([is_active, is_sold], map: "idx_listings_active_sold")
+  @@index([category_id], map: "idx_listings_category_id")
+  @@index([seller_id], map: "idx_listings_seller_id")
+  @@map("listings")
+}
+
+model CartItem {
+  id         String    @id @default(cuid())
+  quantity   Int?      @default(1)
+  user_id    String
+  listing_id String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  listings   Listing   @relation(fields: [listing_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, listing_id])
+  @@map("cart_items")
+}
+
+model Order {
+  id                            String        @id @default(cuid())
+  order_number                  String        @unique
+  status                        order_status? @default(PENDING)
+  total_amount                  Decimal       @db.Decimal(10, 2)
+  shipping_address              String
+  payment_method                String?
+  notes                         String?
+  seller_id                     String
+  buyer_id                      String
+  created_at                    DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at                    DateTime?     @default(now()) @db.Timestamptz(6)
+  order_items                   OrderItem[]
+  users_orders_buyer_idTousers  User          @relation("orders_buyer_idTousers", fields: [buyer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_orders_seller_idTousers User          @relation("orders_seller_idTousers", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([buyer_id], map: "idx_orders_buyer_id")
+  @@index([seller_id], map: "idx_orders_seller_id")
+  @@index([status], map: "idx_orders_status")
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  quantity   Int?    @default(1)
+  price      Decimal @db.Decimal(10, 2)
+  order_id   String
+  listing_id String
+  listings   Listing @relation(fields: [listing_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  orders     Order   @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([listing_id], map: "idx_order_items_listing_id")
+  @@index([order_id], map: "idx_order_items_order_id")
+  @@map("order_items")
+}
+
+enum item_condition {
+  EXCELLENT
+  VERY_GOOD
+  GOOD
+  FAIR
+  POOR
+}
+
+enum order_status {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
