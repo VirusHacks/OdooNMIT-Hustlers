@@ -21,11 +21,10 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
-  Search,
-  User,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+import { Navigation } from "@/components/ui/navigation"
 
 const useScrollAnimation = () => {
   useEffect(() => {
@@ -51,48 +50,6 @@ const useScrollAnimation = () => {
   }, [])
 }
 
-const Navigation = () => {
-  return (
-    <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">B</span>
-            </div>
-            <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              BuyMore
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/browse" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Browse
-            </Link>
-            <Link href="/categories" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              Categories
-            </Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-              About
-            </Link>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <User className="h-4 w-4" />
-            </Button>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
-              Get Started
-            </Button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  )
-}
 
 const HeroSection = () => {
   return (
@@ -101,7 +58,7 @@ const HeroSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <Badge className="mb-8 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200/50 px-6 py-3 text-lg">
           <Sparkles className="h-5 w-5 mr-2" />
-          Welcome to BuyMore
+          Welcome to EcoFinds
         </Badge>
         <h1 className="font-bold text-6xl lg:text-8xl text-gray-900 mb-8 text-balance">
           Where Luxury Meets
@@ -308,7 +265,7 @@ const testimonials = [
     location: "San Francisco, CA",
     avatar: "/professional-woman-asian-smiling.jpg",
     rating: 5,
-    text: "I found my dream Hermès bag at 40% off retail! The authentication process was thorough, and knowing I'm supporting sustainability makes every purchase feel meaningful. BuyMore has completely transformed how I think about luxury shopping.",
+    text: "I found my dream Hermès bag at 40% off retail! The authentication process was thorough, and knowing I'm supporting sustainability makes every purchase feel meaningful. EcoFinds has completely transformed how I think about luxury shopping.",
     verified: true,
   },
   {
@@ -317,7 +274,7 @@ const testimonials = [
     location: "Austin, TX",
     avatar: "/professional-man-african-american-smiling.jpg",
     rating: 5,
-    text: "As a tech entrepreneur, I've sold over $15k worth of electronics on BuyMore. The platform makes it incredibly easy, and I love that I'm helping extend product lifecycles. The community here truly cares about making a difference.",
+    text: "As a tech entrepreneur, I've sold over $15k worth of electronics on EcoFinds. The platform makes it incredibly easy, and I love that I'm helping extend product lifecycles. The community here truly cares about making a difference.",
     verified: true,
   },
   {
@@ -326,7 +283,7 @@ const testimonials = [
     location: "Miami, FL",
     avatar: "/young-woman-latina-designer-smiling.jpg",
     rating: 5,
-    text: "I've furnished my entire apartment with stunning mid-century pieces from BuyMore. Each item has character and history, and I've saved over $8,000 compared to buying new. It's luxury with a conscience.",
+    text: "I've furnished my entire apartment with stunning mid-century pieces from EcoFinds. Each item has character and history, and I've saved over $8,000 compared to buying new. It's luxury with a conscience.",
     verified: true,
   },
 ]
@@ -351,7 +308,7 @@ export default function HomePage() {
                 className="mb-8 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200/50 px-8 py-4 text-lg backdrop-blur-sm"
               >
                 <Sparkles className="h-5 w-5 mr-2" />
-                The BuyMore Difference
+                The EcoFinds Difference
               </Badge>
               <h2 className="font-bold text-6xl lg:text-8xl text-foreground mb-8 text-balance bg-gradient-to-br from-gray-900 via-gray-800 to-blue-800 bg-clip-text text-transparent">
                 Where Luxury Meets Purpose
@@ -499,7 +456,7 @@ export default function HomePage() {
                   <div className="flex items-center mb-6">
                     <img
                       src={testimonial.avatar || "/placeholder.svg?height=64&width=64"}
-                      alt={`${testimonial.name} - BuyMore community member`}
+                      alt={`${testimonial.name} - EcoFinds community member`}
                       className="w-16 h-16 rounded-full mr-4 ring-2 ring-blue-200/50"
                     />
                     <div>
@@ -694,7 +651,7 @@ export default function HomePage() {
                   <span className="text-white font-bold text-2xl">B</span>
                 </div>
                 <span className="font-bold text-4xl bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                  BuyMore
+                  EcoFinds
                 </span>
               </div>
               <p className="text-gray-300 text-xl leading-relaxed">
@@ -747,7 +704,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-gray-700/50 mt-20 pt-16 text-center text-gray-300 text-xl">
-            <p>&copy; 2024 BuyMore. All rights reserved. Made with 💙 for conscious consumers and our planet.</p>
+            <p>&copy; 2024 EcoFinds. All rights reserved. Made with 💙 for conscious consumers and our planet.</p>
           </div>
         </div>
       </footer>
