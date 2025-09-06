@@ -3,3 +3,4 @@
 // Add user authentication (login & signup flow)
 // Implement user dashboard with editable profile fields
 // Create product listing model and basic CRUD operations
+// Build Add Product form with validation
