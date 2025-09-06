@@ -4,12 +4,9 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Navigation } from "@/components/ui/navigation"
-import { PageHeader } from "@/components/ui/page-header"
-import { Badge } from "@/components/ui/badge"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, ShoppingBag } from "lucide-react"
+import { Calendar, MapPin, ShoppingBag, Package, Truck, CheckCircle, XCircle, Clock } from "lucide-react"
+import { Navigation } from "@/components/ui/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 
@@ -44,7 +41,6 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    
     fetchOrders()
   }, [user, router])
 
@@ -53,7 +49,6 @@ export default function OrdersPage() {
       const response = await fetch("/api/orders")
       if (response.ok) {
         const data = await response.json()
-        // Map backend orders to expected frontend structure
         setOrders(
           data.orders.map((order: any) => ({
             ...order,
@@ -69,7 +64,7 @@ export default function OrdersPage() {
               quantity: item.quantity,
               listing: item.listings || { id: "", title: "Unknown", images: [] },
             })),
-          }))
+          })),
         )
       }
     } catch (error) {
@@ -79,18 +74,35 @@ export default function OrdersPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      PENDING: { label: "Pending", className: "bg-yellow-100 text-yellow-800" },
-      CONFIRMED: { label: "Confirmed", className: "bg-blue-100 text-blue-800" },
-      SHIPPED: { label: "Shipped", className: "bg-purple-100 text-purple-800" },
-      DELIVERED: { label: "Delivered", className: "bg-green-100 text-green-800" },
-      CANCELLED: { label: "Cancelled", className: "bg-red-100 text-red-800" },
+  const getStatusConfig = (status: string) => {
+    const configs = {
+      PENDING: {
+        label: "Pending",
+        className: "bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border-yellow-200",
+        icon: Clock,
+      },
+      CONFIRMED: {
+        label: "Confirmed",
+        className: "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200",
+        icon: CheckCircle,
+      },
+      SHIPPED: {
+        label: "Shipped",
+        className: "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-purple-200",
+        icon: Truck,
+      },
+      DELIVERED: {
+        label: "Delivered",
+        className: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200",
+        icon: Package,
+      },
+      CANCELLED: {
+        label: "Cancelled",
+        className: "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-200",
+        icon: XCircle,
+      },
     }
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING
-
-    return <Badge className={config.className}>{config.label}</Badge>
+    return configs[status as keyof typeof configs] || configs.PENDING
   }
 
   if (!user) {
@@ -99,60 +111,61 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
         <Navigation />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex justify-center items-center py-20"
         >
-          <LoadingSpinner size="lg" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </motion.div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <Navigation />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader title="Order History" description="Track your purchases and view detailed order information" />
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+          >
+            Order History
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-600"
+          >
+            Track your purchases and view detailed order information
+          </motion.p>
+        </div>
 
-        <div className="mt-8">
+        <div className="space-y-6">
           {orders.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-6"
-            >
-              {orders.map((order, index) => (
+            orders.map((order, index) => {
+              const statusConfig = getStatusConfig(order.status)
+              const StatusIcon = statusConfig.icon
+
+              return (
                 <motion.div
                   key={order.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  className="luxury-card hover:shadow-2xl transition-all duration-300 backdrop-blur-sm bg-card/80 border border-border/50"
+                  className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 p-6"
                 >
-                  {/* Order Header */}
-                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/50">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200/50">
                     <div>
-                      <motion.h3
-                        className="font-heading font-semibold text-lg text-foreground"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 + 0.2 }}
-                      >
-                        Order #{order.orderNumber}
-                      </motion.h3>
-                      <motion.div
-                        className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 + 0.3 }}
-                      >
+                      <h3 className="text-xl font-semibold text-slate-800 mb-2">Order #{order.orderNumber}</h3>
+                      <div className="flex items-center space-x-4 text-sm text-slate-600">
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-4 w-4" />
                           <span>{new Date(order.createdAt).toLocaleDateString()}</span>
@@ -161,37 +174,31 @@ export default function OrdersPage() {
                           <MapPin className="h-4 w-4" />
                           <span>Sold by {order.seller.name}</span>
                         </div>
-                      </motion.div>
+                      </div>
                     </div>
-                    <motion.div
-                      className="text-right"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 + 0.4 }}
-                    >
-                      {getStatusBadge(order.status)}
-                      <motion.p
-                        className="font-heading font-bold text-xl text-primary mt-2"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ type: "spring", stiffness: 400 }}
+                    <div className="text-right">
+                      <div
+                        className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium border ${statusConfig.className}`}
                       >
+                        <StatusIcon className="h-4 w-4" />
+                        <span>{statusConfig.label}</span>
+                      </div>
+                      <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-2">
                         ${order.totalAmount}
-                      </motion.p>
-                    </motion.div>
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Order Items */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 mb-6">
                     {order.orderItems.map((item, itemIndex) => (
                       <motion.div
                         key={item.id}
-                        className="flex items-center space-x-4 p-3 rounded-lg hover:bg-muted/30 transition-colors duration-200"
+                        className="flex items-center space-x-4 p-4 rounded-xl bg-gradient-to-r from-slate-50/50 to-blue-50/30 hover:from-slate-50/80 hover:to-blue-50/50 transition-all duration-200"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 + itemIndex * 0.05 + 0.5 }}
-                        whileHover={{ x: 4 }}
+                        transition={{ delay: index * 0.1 + itemIndex * 0.05 + 0.3 }}
                       >
-                        <div className="relative w-16 h-16 overflow-hidden rounded-lg bg-card shadow-sm">
+                        <div className="relative w-16 h-16 overflow-hidden rounded-xl bg-white shadow-sm">
                           <Image
                             src={item.listing.images[0] || "/placeholder.svg?height=64&width=64"}
                             alt={item.listing.title}
@@ -202,40 +209,37 @@ export default function OrdersPage() {
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/products/${item.listing.id}`}
-                            className="font-medium text-foreground hover:text-primary transition-colors line-clamp-2 block"
+                            className="font-medium text-slate-800 hover:text-blue-600 transition-colors line-clamp-2 block"
                           >
                             {item.listing.title}
                           </Link>
-                          <p className="text-sm text-muted-foreground mt-1">Quantity: {item.quantity}</p>
+                          <p className="text-sm text-slate-600 mt-1">Quantity: {item.quantity}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${(Number(item.price) * item.quantity).toFixed(2)}</p>
+                          <p className="font-semibold text-slate-800">
+                            ${(Number(item.price) * item.quantity).toFixed(2)}
+                          </p>
                         </div>
                       </motion.div>
                     ))}
                   </div>
 
-                  {/* Shipping Address */}
-                  <motion.div
-                    className="mt-6 pt-4 border-t border-border/50"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.1 + 0.7 }}
-                  >
-                    <h4 className="font-medium text-foreground mb-2">Shipping Address</h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-line bg-muted/20 p-3 rounded-lg">
-                      {order.shippingAddress}
-                    </p>
-                  </motion.div>
+                  <div className="bg-gradient-to-r from-slate-50/50 to-blue-50/30 rounded-xl p-4">
+                    <h4 className="font-medium text-slate-800 mb-2 flex items-center space-x-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>Shipping Address</span>
+                    </h4>
+                    <p className="text-sm text-slate-600 whitespace-pre-line">{order.shippingAddress}</p>
+                  </div>
                 </motion.div>
-              ))}
-            </motion.div>
+              )
+            })
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-center py-16"
+              className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -245,21 +249,19 @@ export default function OrdersPage() {
               >
                 📦
               </motion.div>
-              <h3 className="font-heading font-semibold text-2xl text-foreground mb-3">No orders yet</h3>
-              <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+              <h3 className="text-2xl font-semibold text-slate-800 mb-3">No orders yet</h3>
+              <p className="text-slate-600 mb-8 max-w-md mx-auto">
                 Start shopping to see your order history here and track your purchases
               </p>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  asChild
-                  className="luxury-button bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl"
-                >
-                  <Link href="/browse">
-                    <ShoppingBag className="h-4 w-4 mr-2" />
-                    Start Shopping
-                  </Link>
-                </Button>
-              </motion.div>
+              <Button
+                asChild
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Link href="/browse">
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Start Shopping
+                </Link>
+              </Button>
             </motion.div>
           )}
         </div>

@@ -3,13 +3,11 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Navigation } from "@/components/ui/navigation"
-import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Plus, Edit, Eye, Trash2, MoreHorizontal } from "lucide-react"
+import { Plus, Edit, Eye, Trash2, MoreHorizontal, TrendingUp, DollarSign } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Navigation } from "@/components/ui/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -36,7 +34,6 @@ export default function MyListingsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-
     fetchMyListings()
   }, [user, router])
 
@@ -45,7 +42,6 @@ export default function MyListingsPage() {
       const response = await fetch("/api/my-listings")
       if (response.ok) {
         const data = await response.json()
-        // Map backend listings to expected frontend structure
         setListings(
           data.listings.map((listing: any) => ({
             ...listing,
@@ -54,7 +50,7 @@ export default function MyListingsPage() {
             createdAt: listing.created_at,
             category: listing.categories || { name: "Unknown" },
             images: listing.images || [],
-          }))
+          })),
         )
       }
     } catch (error) {
@@ -118,38 +114,51 @@ export default function MyListingsPage() {
     }
   }
 
-  if (!user) {
-    return null
-  }
-
   const getStatusBadge = (listing: Listing) => {
     if (listing.isSold) {
       return (
-        <Badge variant="secondary" className="bg-green-100 text-green-800">
-          Sold
-        </Badge>
+        <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200">Sold</Badge>
       )
     }
     if (!listing.isActive) {
       return (
-        <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-          Inactive
-        </Badge>
+        <Badge className="bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-200">Inactive</Badge>
       )
     }
-    return (
-      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-        Active
-      </Badge>
-    )
+    return <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200">Active</Badge>
   }
 
+  if (!user) {
+    return null
+  }
+
+  const activeListings = listings.filter((l) => l.isActive && !l.isSold).length
+  const soldListings = listings.filter((l) => l.isSold).length
+  const totalRevenue = listings.filter((l) => l.isSold).reduce((sum, l) => sum + l.price, 0)
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader title="My Listings" description="Manage your products and track their performance">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+            >
+              My Listings
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-600"
+            >
+              Manage your products and track their performance
+            </motion.p>
+          </div>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -157,7 +166,7 @@ export default function MyListingsPage() {
           >
             <Button
               asChild
-              className="luxury-button bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Link href="/add-product">
                 <Plus className="h-4 w-4 mr-2" />
@@ -165,18 +174,71 @@ export default function MyListingsPage() {
               </Link>
             </Button>
           </motion.div>
-        </PageHeader>
+        </div>
 
-        <div className="mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Active Listings</p>
+                <p className="text-2xl font-bold text-slate-800">{activeListings}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Items Sold</p>
+                <p className="text-2xl font-bold text-slate-800">{soldListings}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Total Revenue</p>
+                <p className="text-2xl font-bold text-slate-800">${totalRevenue.toFixed(2)}</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <div>
           {loading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-center py-12">
-              <LoadingSpinner size="lg" />
-            </motion.div>
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
           ) : listings.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {listings.map((listing, index) => (
@@ -184,25 +246,18 @@ export default function MyListingsPage() {
                   key={listing.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
                   whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                  className="luxury-card group hover:shadow-2xl transition-all duration-300 backdrop-blur-sm bg-card/80 border border-border/50"
+                  className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
                 >
-                  <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
+                  <div className="relative aspect-square overflow-hidden">
                     <motion.img
                       src={listing.images[0] || "/placeholder.svg?height=300&width=300"}
                       alt={listing.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 + 0.2 }}
-                      className="absolute top-3 left-3"
-                    >
-                      {getStatusBadge(listing)}
-                    </motion.div>
+                    <div className="absolute top-3 left-3">{getStatusBadge(listing)}</div>
                     <div className="absolute top-3 right-3">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -214,7 +269,7 @@ export default function MyListingsPage() {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="backdrop-blur-sm bg-card/95 border-border/50">
+                        <DropdownMenuContent align="end" className="backdrop-blur-sm bg-white/95 border-slate-200/50">
                           <DropdownMenuItem asChild>
                             <Link href={`/products/${listing.id}`}>
                               <Eye className="h-4 w-4 mr-2" />
@@ -230,7 +285,7 @@ export default function MyListingsPage() {
                           <DropdownMenuItem onClick={() => handleToggleActive(listing.id, listing.isActive)}>
                             {listing.isActive ? "Deactivate" : "Activate"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(listing.id)} className="text-destructive">
+                          <DropdownMenuItem onClick={() => handleDelete(listing.id)} className="text-red-600">
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -239,22 +294,18 @@ export default function MyListingsPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="p-6 space-y-4">
                     <div className="flex items-start justify-between">
-                      <h3 className="font-heading font-semibold text-lg text-foreground line-clamp-2 group-hover:text-primary transition-colors duration-200">
+                      <h3 className="font-semibold text-lg text-slate-800 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
                         {listing.title}
                       </h3>
-                      <motion.p
-                        className="font-heading font-bold text-xl text-primary ml-2"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
+                      <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent ml-2">
                         ${listing.price}
-                      </motion.p>
+                      </p>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span className="px-2 py-1 rounded-full bg-muted/50 text-xs font-medium">
+                    <div className="flex items-center justify-between text-sm text-slate-600">
+                      <span className="px-3 py-1 rounded-full bg-gradient-to-r from-slate-100 to-blue-50 text-xs font-medium">
                         {listing.category.name}
                       </span>
                       <span>{new Date(listing.createdAt).toLocaleDateString()}</span>
@@ -265,7 +316,7 @@ export default function MyListingsPage() {
                         size="sm"
                         variant="outline"
                         asChild
-                        className="flex-1 luxury-button bg-transparent hover:bg-primary/5 border-border/50"
+                        className="flex-1 bg-transparent hover:bg-blue-50 border-slate-200 hover:border-blue-300 transition-all duration-200"
                       >
                         <Link href={`/products/${listing.id}`}>
                           <Eye className="h-4 w-4 mr-1" />
@@ -276,7 +327,7 @@ export default function MyListingsPage() {
                         size="sm"
                         variant="outline"
                         asChild
-                        className="flex-1 luxury-button bg-transparent hover:bg-primary/5 border-border/50"
+                        className="flex-1 bg-transparent hover:bg-blue-50 border-slate-200 hover:border-blue-300 transition-all duration-200"
                       >
                         <Link href={`/edit-product/${listing.id}`}>
                           <Edit className="h-4 w-4 mr-1" />
@@ -293,7 +344,7 @@ export default function MyListingsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-center py-16"
+              className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -303,21 +354,19 @@ export default function MyListingsPage() {
               >
                 📦
               </motion.div>
-              <h3 className="font-heading font-semibold text-2xl text-foreground mb-3">No listings yet</h3>
-              <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+              <h3 className="text-2xl font-semibold text-slate-800 mb-3">No listings yet</h3>
+              <p className="text-slate-600 mb-8 max-w-md mx-auto">
                 Start selling by creating your first listing and reach thousands of potential buyers
               </p>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  asChild
-                  className="luxury-button bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl"
-                >
-                  <Link href="/add-product">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Your First Listing
-                  </Link>
-                </Button>
-              </motion.div>
+              <Button
+                asChild
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Link href="/add-product">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Listing
+                </Link>
+              </Button>
             </motion.div>
           )}
         </div>

@@ -5,12 +5,10 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Navigation } from "@/components/ui/navigation"
-import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
+import { Minus, Plus, Trash2, ShoppingBag, Shield, Truck, CreditCard } from "lucide-react"
+import { Navigation } from "@/components/ui/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
@@ -56,7 +54,6 @@ export default function CartPage() {
       const response = await fetch("/api/cart")
       if (response.ok) {
         const data = await response.json()
-        // Map backend cartItems to expected frontend structure
         setCartItems(
           data.cartItems.map((item: any) => {
             const category = item.listings?.categories || { name: "Unknown" }
@@ -69,7 +66,7 @@ export default function CartPage() {
                 category,
               },
             }
-          })
+          }),
         )
         setTotal(data.total)
       }
@@ -95,7 +92,6 @@ export default function CartPage() {
 
       if (response.ok) {
         setCartItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item)))
-        // Recalculate total
         const newTotal = cartItems.reduce((sum, item) => {
           const quantity = item.id === itemId ? newQuantity : item.quantity
           return sum + Number(item.listing.price) * quantity
@@ -122,7 +118,6 @@ export default function CartPage() {
 
       if (response.ok) {
         setCartItems((prev) => prev.filter((item) => item.id !== itemId))
-        // Recalculate total
         const newTotal = cartItems
           .filter((item) => item.id !== itemId)
           .reduce((sum, item) => sum + Number(item.listing.price) * item.quantity, 0)
@@ -155,39 +150,52 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
         <Navigation />
         <div className="flex justify-center items-center py-20">
-          <LoadingSpinner size="lg" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <Navigation />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader
-          title="Shopping Cart"
-          description={`${cartItems.length} ${cartItems.length === 1 ? "item" : "items"} in your cart`}
-        />
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+          >
+            Shopping Cart
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-600"
+          >
+            {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in your cart
+          </motion.p>
+        </div>
 
-        <div className="mt-8">
+        <div>
           {cartItems.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
-                {cartItems.map((item) => (
+                {cartItems.map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="luxury-card"
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-lg p-6"
                   >
                     <div className="flex items-start space-x-4">
-                      <div className="relative w-24 h-24 overflow-hidden rounded-lg bg-card">
+                      <div className="relative w-24 h-24 overflow-hidden rounded-xl bg-white shadow-sm">
                         <Image
                           src={item.listing.images[0] || "/placeholder.svg?height=96&width=96"}
                           alt={item.listing.title}
@@ -199,23 +207,29 @@ export default function CartPage() {
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/products/${item.listing.id}`}
-                          className="font-heading font-semibold text-lg text-foreground hover:text-primary transition-colors line-clamp-2"
+                          className="font-semibold text-lg text-slate-800 hover:text-blue-600 transition-colors line-clamp-2 block mb-2"
                         >
                           {item.listing.title}
                         </Link>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {item.listing.category.name} • {item.listing.condition.replace("_", " ")}
+                        <div className="flex items-center space-x-2 text-sm text-slate-600 mb-2">
+                          <span className="px-2 py-1 rounded-full bg-gradient-to-r from-slate-100 to-blue-50 text-xs font-medium">
+                            {item.listing.category.name}
+                          </span>
+                          <span>•</span>
+                          <span>{item.listing.condition.replace("_", " ")}</span>
+                        </div>
+                        <p className="text-sm text-slate-600">Sold by {item.listing.seller.name}</p>
+                        <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-2">
+                          ${item.listing.price}
                         </p>
-                        <p className="text-sm text-muted-foreground">Sold by {item.listing.seller.name}</p>
-                        <p className="font-heading font-bold text-xl text-primary mt-2">${item.listing.price}</p>
                       </div>
 
-                      <div className="flex flex-col items-end space-y-2">
+                      <div className="flex flex-col items-end space-y-3">
                         <div className="flex items-center space-x-2">
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 bg-transparent"
+                            className="h-8 w-8 bg-white hover:bg-slate-50 border-slate-200"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             disabled={updating === item.id || item.quantity <= 1}
                           >
@@ -227,14 +241,14 @@ export default function CartPage() {
                             min="1"
                             value={item.quantity}
                             onChange={(e) => updateQuantity(item.id, Number.parseInt(e.target.value) || 1)}
-                            className="w-16 text-center"
+                            className="w-16 text-center border-slate-200"
                             disabled={updating === item.id}
                           />
 
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 bg-transparent"
+                            className="h-8 w-8 bg-white hover:bg-slate-50 border-slate-200"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             disabled={updating === item.id}
                           >
@@ -247,9 +261,13 @@ export default function CartPage() {
                           size="sm"
                           onClick={() => removeItem(item.id)}
                           disabled={updating === item.id}
-                          className="text-destructive hover:text-destructive"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
-                          {updating === item.id ? <LoadingSpinner size="sm" /> : <Trash2 className="h-4 w-4" />}
+                          {updating === item.id ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -257,52 +275,79 @@ export default function CartPage() {
                 ))}
               </div>
 
-              {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="luxury-card sticky top-8">
-                  <h2 className="font-heading font-semibold text-xl text-foreground mb-6">Order Summary</h2>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-lg p-6 sticky top-24"
+                >
+                  <h2 className="text-xl font-semibold text-slate-800 mb-6">Order Summary</h2>
 
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">${total}</span>
+                      <span className="text-slate-600">Subtotal</span>
+                      <span className="font-medium text-slate-800">${total}</span>
                     </div>
 
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">Calculated at checkout</span>
+                      <span className="text-slate-600">Shipping</span>
+                      <span className="font-medium text-slate-800">Calculated at checkout</span>
                     </div>
 
-                    <div className="border-t border-border pt-4">
+                    <div className="border-t border-slate-200 pt-4">
                       <div className="flex justify-between">
-                        <span className="font-heading font-semibold text-lg">Total</span>
-                        <span className="font-heading font-bold text-xl text-primary">${total}</span>
+                        <span className="text-lg font-semibold text-slate-800">Total</span>
+                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          ${total}
+                        </span>
                       </div>
                     </div>
 
                     <Button
                       onClick={handleCheckout}
-                      className="w-full luxury-button mt-6"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl mt-6"
                       disabled={cartItems.length === 0}
                     >
+                      <CreditCard className="h-4 w-4 mr-2" />
                       Proceed to Checkout
                     </Button>
+
+                    <div className="mt-6 pt-6 border-t border-slate-200">
+                      <div className="space-y-3 text-sm text-slate-600">
+                        <div className="flex items-center space-x-2">
+                          <Shield className="h-4 w-4 text-green-600" />
+                          <span>Secure checkout</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Truck className="h-4 w-4 text-blue-600" />
+                          <span>Fast shipping</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🛒</div>
-              <h3 className="font-heading font-semibold text-2xl text-foreground mb-2">Your cart is empty</h3>
-              <p className="text-muted-foreground mb-6">Discover unique items in our marketplace</p>
-              <Button asChild className="luxury-button">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/50"
+            >
+              <div className="text-8xl mb-6 opacity-60">🛒</div>
+              <h3 className="text-2xl font-semibold text-slate-800 mb-3">Your cart is empty</h3>
+              <p className="text-slate-600 mb-8">Discover unique items in our marketplace</p>
+              <Button
+                asChild
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
                 <Link href="/browse">
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Start Shopping
                 </Link>
               </Button>
-            </div>
+            </motion.div>
           )}
         </div>
       </main>

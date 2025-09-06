@@ -39,14 +39,21 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
+            <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
+              Dashboard
+            </Link>
             <Link href="/browse" className="text-foreground hover:text-primary transition-colors font-medium">
               Browse
             </Link>
-            <Link href="/categories" className="text-foreground hover:text-primary transition-colors font-medium">
-              Categories
-            </Link>
+            
             <Link href="/how-it-works" className="text-foreground hover:text-primary transition-colors font-medium">
               How It Works
+            </Link>
+            <Link href="/my-listings" className="text-foreground hover:text-primary transition-colors font-medium">
+              My Listings
+            </Link>
+            <Link href="/orders" className="text-foreground hover:text-primary transition-colors font-medium">
+              Orders
             </Link>
           </div>
 
@@ -149,18 +156,19 @@ export function Navigation() {
               </div>
 
               <div className="space-y-2">
+              <Link
+                  href="/dashboard"
+                  className="block py-2 text-foreground hover:text-primary transition-colors font-medium"
+                >
+                  Dashboard
+                </Link>
                 <Link
                   href="/browse"
                   className="block py-2 text-foreground hover:text-primary transition-colors font-medium"
                 >
                   Browse
                 </Link>
-                <Link
-                  href="/categories"
-                  className="block py-2 text-foreground hover:text-primary transition-colors font-medium"
-                >
-                  Categories
-                </Link>
+                
                 <Link
                   href="/how-it-works"
                   className="block py-2 text-foreground hover:text-primary transition-colors font-medium"

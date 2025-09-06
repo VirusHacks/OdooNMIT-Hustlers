@@ -1,19 +1,16 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Navigation } from "@/components/ui/navigation"
-import { PageHeader } from "@/components/ui/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { X, Plus } from "lucide-react"
+import { X, Upload, Camera, Star, Shield, Zap, Users, ShoppingBag, TrendingUp } from "lucide-react"
+import { Navigation } from "@/components/ui/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 
@@ -43,11 +40,11 @@ export default function AddProductPage() {
   })
 
   const conditions = [
-    { value: "EXCELLENT", label: "Excellent - Like new, no visible wear" },
-    { value: "VERY_GOOD", label: "Very Good - Minor signs of wear" },
-    { value: "GOOD", label: "Good - Some wear but fully functional" },
-    { value: "FAIR", label: "Fair - Noticeable wear but still usable" },
-    { value: "POOR", label: "Poor - Significant wear or damage" },
+    { value: "EXCELLENT", label: "Excellent - Like new, no visible wear", icon: "⭐" },
+    { value: "VERY_GOOD", label: "Very Good - Minor signs of wear", icon: "✨" },
+    { value: "GOOD", label: "Good - Some wear but fully functional", icon: "👍" },
+    { value: "FAIR", label: "Fair - Noticeable wear but still usable", icon: "👌" },
+    { value: "POOR", label: "Poor - Significant wear or damage", icon: "⚠️" },
   ]
 
   useEffect(() => {
@@ -145,30 +142,103 @@ export default function AddProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       <Navigation />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader
-          title="List Your Item"
-          description="Share your pre-loved treasures with our sustainable community"
-        />
-
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button variant="outline" onClick={() => router.back()} className="mb-4">
+            ← Back to Dashboard
+          </Button>
+        </div>
+        {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mt-8"
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            List Your Item
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Share your pre-loved treasures with our sustainable community and turn your items into cash
+          </p>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+        >
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50 shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Avg. Sale Time</p>
+                <p className="text-xl font-bold text-slate-900">3.2 days</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50 shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Active Buyers</p>
+                <p className="text-xl font-bold text-slate-900">12.5K+</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50 shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Star className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Success Rate</p>
+                <p className="text-xl font-bold text-slate-900">94.8%</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50 shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Seller Protection</p>
+                <p className="text-xl font-bold text-slate-900">100%</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
-            <div className="luxury-card">
-              <h2 className="font-heading font-semibold text-2xl text-foreground mb-6">Basic Information</h2>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-200/50 shadow-lg">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                  <ShoppingBag className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900">Basic Information</h2>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <Label htmlFor="title" className="text-sm font-medium text-foreground">
-                    Title *
+                  <Label htmlFor="title" className="text-sm font-semibold text-slate-700 mb-2 block">
+                    Product Title *
                   </Label>
                   <Input
                     id="title"
@@ -177,12 +247,12 @@ export default function AddProductPage() {
                     onChange={handleInputChange}
                     placeholder="e.g., Vintage Hermès Silk Scarf"
                     required
-                    className="mt-1"
+                    className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="description" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Description *
                   </Label>
                   <Textarea
@@ -193,37 +263,42 @@ export default function AddProductPage() {
                     placeholder="Describe your item's condition, history, and any special features..."
                     rows={4}
                     required
-                    className="mt-1"
+                    className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 resize-none"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="price" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="price" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Price (USD) *
                   </Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    placeholder="0.00"
-                    required
-                    className="mt-1"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium">
+                      $
+                    </span>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      placeholder="0.00"
+                      required
+                      className="h-12 pl-8 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="categoryId" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="categoryId" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Category *
                   </Label>
                   <Select
                     value={formData.categoryId}
                     onValueChange={(value) => handleSelectChange("categoryId", value)}
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -239,22 +314,30 @@ export default function AddProductPage() {
             </div>
 
             {/* Product Details */}
-            <div className="luxury-card">
-              <h2 className="font-heading font-semibold text-2xl text-foreground mb-6">Product Details</h2>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-200/50 shadow-lg">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900">Product Details</h2>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <Label htmlFor="condition" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="condition" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Condition *
                   </Label>
                   <Select value={formData.condition} onValueChange={(value) => handleSelectChange("condition", value)}>
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                       <SelectValue placeholder="Select condition" />
                     </SelectTrigger>
                     <SelectContent>
                       {conditions.map((condition) => (
                         <SelectItem key={condition.value} value={condition.value}>
-                          {condition.label}
+                          <div className="flex items-center space-x-2">
+                            <span>{condition.icon}</span>
+                            <span>{condition.label}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -262,7 +345,7 @@ export default function AddProductPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="brand" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="brand" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Brand
                   </Label>
                   <Input
@@ -271,12 +354,12 @@ export default function AddProductPage() {
                     value={formData.brand}
                     onChange={handleInputChange}
                     placeholder="e.g., Hermès, Apple, IKEA"
-                    className="mt-1"
+                    className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="size" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="size" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Size
                   </Label>
                   <Input
@@ -285,12 +368,12 @@ export default function AddProductPage() {
                     value={formData.size}
                     onChange={handleInputChange}
                     placeholder="e.g., Medium, 32GB, 10x8 inches"
-                    className="mt-1"
+                    className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="color" className="text-sm font-medium text-foreground">
+                <div className="md:col-span-2">
+                  <Label htmlFor="color" className="text-sm font-semibold text-slate-700 mb-2 block">
                     Color
                   </Label>
                   <Input
@@ -299,36 +382,47 @@ export default function AddProductPage() {
                     value={formData.color}
                     onChange={handleInputChange}
                     placeholder="e.g., Navy Blue, Silver, Natural"
-                    className="mt-1"
+                    className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                   />
                 </div>
               </div>
             </div>
 
             {/* Images */}
-            <div className="luxury-card">
-              <h2 className="font-heading font-semibold text-2xl text-foreground mb-6">Product Images</h2>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-200/50 shadow-lg">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900">Product Images</h2>
+              </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
                 {images.map((image, index) => (
                   <div
                     key={index}
-                    className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border"
+                    className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden border-2 border-slate-200 group hover:border-blue-300 transition-colors"
                   >
                     <img
                       src={image || "/placeholder.svg"}
                       alt={`Product ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
-                      className="absolute top-2 right-2 h-6 w-6"
+                      className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => removeImage(index)}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </Button>
+                    {index === 0 && (
+                      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-md font-medium">
+                        Main
+                      </div>
+                    )}
                   </div>
                 ))}
 
@@ -336,30 +430,51 @@ export default function AddProductPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="aspect-square border-dashed border-2 luxury-button bg-transparent"
+                    className="aspect-square border-dashed border-2 border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50 transition-colors rounded-xl"
                     onClick={addImagePlaceholder}
                   >
                     <div className="text-center">
-                      <Plus className="h-6 w-6 mx-auto mb-2" />
-                      <span className="text-sm">Add Image</span>
+                      <Upload className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                      <span className="text-sm font-medium text-slate-600">Add Image</span>
                     </div>
                   </Button>
                 )}
               </div>
 
-              <p className="text-sm text-muted-foreground mt-4">
-                Add up to 5 high-quality images. The first image will be your main product photo.
-              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p className="text-sm text-blue-800 font-medium">
+                  📸 <strong>Pro Tip:</strong> Add up to 5 high-quality images. The first image will be your main
+                  product photo. Good lighting and multiple angles increase your chances of selling!
+                </p>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4">
-              <Button type="button" variant="outline" onClick={() => router.back()} className="luxury-button">
+            {/* Submit Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                className="h-12 px-8 border-slate-300 hover:bg-slate-50"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading} className="luxury-button">
-                {isLoading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
-                {isLoading ? "Creating Listing..." : "List Item"}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+              >
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Creating Listing...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>List Item</span>
+                  </div>
+                )}
               </Button>
             </div>
           </form>
