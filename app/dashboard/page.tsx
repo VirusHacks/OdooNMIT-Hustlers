@@ -127,13 +127,47 @@ export default function DashboardPage() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(false)
   const [ordersError, setOrdersError] = useState<string | null>(null)
 
+  // Array of public images to cycle through
+  const publicImages = [
+    "/vintage-black-leather-jacket.jpg",
+    "/iphone-13-pro-graphite.jpg",
+    "/chanel-classic-flap-bag-black-quilted-leather.jpg",
+    "/luxury-watch.jpg",
+    "/macbook-pro-16-inch-space-gray-laptop.jpg",
+    "/nike.jpg",
+    "/premium-sneakers.png",
+    "/wireless-headphones.png",
+    "/luxury-handbag.png",
+    "/eames-lounge-chair-walnut-black-leather.jpg",
+    "/casual-winter-outfit.jpg",
+    "/fashion-model-hoodie.jpg",
+    "/green-jacket.jpg",
+    "/outerwear.jpg",
+    "/ryana.jpg",
+    "/supper-skiny-jogger-brown.jpg",
+    "/wmx-rubber-zebra-sandal.jpg",
+    "/woman-orange-hoodie-smiling.jpg",
+    "/winter-fashion-model.jpg",
+    "/young-woman-latina-designer-smiling.jpg",
+    "/professional-man-african-american-smiling.jpg",
+    "/professional-woman-asian-smiling.jpg",
+    "/luxury-hermes-birkin-bag-orange-leather.jpg",
+    "/abstract-geometric-shapes.png",
+    "/blue-shirt.png"
+  ]
+
+  // Function to get a random image from public images array
+  const getRandomImage = (index: number) => {
+    return publicImages[index % publicImages.length]
+  }
+
   const handleSidebarClick = (section: string) => {
     setActiveSection(section)
     
     // Fetch data when switching to specific sections
-    if (section === "listings" && listings.length === 0) {
+    if (section === "listings" && (listings?.length || 0) === 0) {
       fetchListings()
-    } else if (section === "orders" && orders.length === 0) {
+    } else if (section === "orders" && (orders?.length || 0) === 0) {
       fetchOrders()
     }
   }
@@ -148,8 +182,13 @@ export default function DashboardPage() {
         throw new Error('Failed to fetch products')
       }
       
-        const data = await response.json()
-      setProducts(data.products || [])
+      const data = await response.json()
+      // Map API response to frontend format and assign images from public folder
+      const mappedProducts = (data.products || []).map((product: any, index: number) => ({
+        ...product,
+        images: [getRandomImage(index)] // Cycle through public images
+      }))
+      setProducts(mappedProducts)
     } catch (error) {
       console.error('Error fetching products:', error)
       setProductsError('Failed to load products')
@@ -168,8 +207,13 @@ export default function DashboardPage() {
         throw new Error('Failed to fetch listings')
       }
       
-        const data = await response.json()
-        setListings(data.listings || [])
+      const data = await response.json()
+      // Map API response to frontend format and assign images from public folder
+      const mappedListings = (data.listings || []).map((listing: any, index: number) => ({
+        ...listing,
+        images: [getRandomImage(index)] // Cycle through public images
+      }))
+      setListings(mappedListings)
     } catch (error) {
       console.error('Error fetching listings:', error)
       setListingsError('Failed to load listings')
@@ -215,7 +259,7 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground">Welcome back! Here's your marketplace overview.</p>
         </div>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-3xl font-bold">{products.length}</span>
+                <span className="text-3xl font-bold">{products?.length || 0}</span>
                 <div className="text-muted-foreground">
                   <div>Products</div>
                   <div>Available now</div>
@@ -331,7 +375,7 @@ export default function DashboardPage() {
 
               {/* Recent Orders */}
               <Card className="p-6 bg-white/80 backdrop-blur-sm">
-                <h3 className="font-medium mb-4">Recent Products ({products.length})</h3>
+                <h3 className="font-medium mb-4">Recent Products ({products?.length || 0})</h3>
                 <div className="space-y-3">
                   {isLoadingProducts ? (
                     <>
@@ -350,12 +394,12 @@ export default function DashboardPage() {
               </div>
                   </div>
                     </>
-                  ) : products.length > 0 ? (
-                    products.slice(0, 2).map((product) => (
+                  ) : (products?.length || 0) > 0 ? (
+                    (products || []).slice(0, 2).map((product) => (
                       <div key={product.id} className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage 
-                            src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.jpg"} 
+                            src={product.images?.[0] || "/placeholder.jpg"} 
                           />
                           <AvatarFallback>{product.title.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
@@ -453,7 +497,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="absolute right-0 top-0 w-24 h-24 opacity-30">
                         <img
-                          src="/vintage-black-leather-jacket.jpg"
+                          src="/iphone-13-pro-graphite.jpg"
                           alt="Winter outfit"
                           className="w-full h-full object-cover rounded-full"
                         />
@@ -484,12 +528,12 @@ export default function DashboardPage() {
                           Try Again
                         </Button>
                       </div>
-                    ) : products.length > 0 ? (
-                      products.slice(0, 2).map((product, index) => (
+                    ) : (products?.length || 0) > 0 ? (
+                      (products || []).slice(0, 2).map((product, index) => (
                         <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                           <div className="aspect-square relative overflow-hidden bg-gray-100">
                             <img
-                              src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.jpg"}
+                              src="/iphone-13-pro-graphite.jpg"
                               alt={product.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -554,7 +598,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="absolute right-0 top-0 w-32 h-32 opacity-30">
                         <img
-                          src="/vintage-black-leather-jacket.jpg"
+                          src="/iphone-13-pro-graphite.jpg"
                           alt="Fashion model"
                           className="w-full h-full object-cover rounded-full"
                         />
@@ -582,11 +626,11 @@ export default function DashboardPage() {
                           <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gray-200 animate-pulse"></div>
                           <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gray-200 animate-pulse"></div>
                         </>
-                      ) : products.length > 0 ? (
-                        products.slice(2, 5).map((product) => (
+                      ) : (products?.length || 0) > 0 ? (
+                        (products || []).slice(2, 5).map((product) => (
                           <div key={product.id} className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gray-100">
                             <img 
-                              src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.jpg"} 
+                              src="/iphone-13-pro-graphite.jpg"
                               alt={product.title} 
                               className="w-full h-full object-cover" 
                             />
@@ -623,7 +667,7 @@ export default function DashboardPage() {
                           <TrendingUp className="h-6 w-6 text-white" />
                             </div>
                         <div>
-                          <p className="text-2xl font-bold">{products.length}</p>
+                          <p className="text-2xl font-bold">{products?.length || 0}</p>
                           <p className="text-sm text-muted-foreground">Total Products</p>
                             </div>
                           </div>
@@ -635,7 +679,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-2xl font-bold">
-                            {products.length > 0 ? (products.reduce((sum, product) => sum + product.price, 0) / products.length).toFixed(0) : '0'}
+                            {(products?.length || 0) > 0 ? ((products || []).reduce((sum, product) => sum + (product.price || 0), 0) / (products?.length || 1)).toFixed(0) : '0'}
                           </p>
                           <p className="text-sm text-muted-foreground">Avg Price</p>
                         </div>
@@ -648,7 +692,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-2xl font-bold">
-                            {products.length > 0 ? new Set(products.map(p => p.users.id)).size : '0'}
+                            {(products?.length || 0) > 0 ? new Set((products || []).map(p => p.users?.id)).size : '0'}
                           </p>
                           <p className="text-sm text-muted-foreground">Active Sellers</p>
                         </div>
@@ -685,24 +729,18 @@ export default function DashboardPage() {
                           Try Again
                         </Button>
                       </div>
-                    ) : products.length > 0 ? (
-                      products.slice(0, 6).map((product, index) => (
+                    ) : (products?.length || 0) > 0 ? (
+                      (products || []).slice(0, 6).map((product, index) => (
                         <Card
                           key={product.id}
                           className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm"
                         >
                           <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-                            {product.images && product.images.length > 0 ? (
-                              <img
-                                src={product.images[0]}
-                                alt={product.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            <img
+                              src="/iphone-13-pro-graphite.jpg"
+                              alt={product.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
-                          ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                <ShoppingBag className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
                             <div className="absolute top-3 right-3">
                               <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0 bg-white/80">
                                 <Heart className="h-4 w-4" />
@@ -829,7 +867,7 @@ export default function DashboardPage() {
                           <Package className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                          <p className="text-2xl font-bold">{listings.length}</p>
+                          <p className="text-2xl font-bold">{listings?.length || 0}</p>
                           <p className="text-sm text-muted-foreground">Total Listings</p>
                         </div>
                       </div>
@@ -841,7 +879,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-2xl font-bold">
-                            {listings.filter(l => l.is_active && !l.is_sold).length}
+                            {listings?.filter(l => l.is_active && !l.is_sold).length || 0}
                           </p>
                           <p className="text-sm text-muted-foreground">Active</p>
                         </div>
@@ -854,7 +892,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-2xl font-bold">
-                            {listings.filter(l => l.is_sold).length}
+                            {listings?.filter(l => l.is_sold).length || 0}
                           </p>
                           <p className="text-sm text-muted-foreground">Sold</p>
                         </div>
@@ -867,7 +905,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-2xl font-bold">
-                            ${listings.reduce((sum, listing) => sum + listing.price, 0).toFixed(0)}
+                            ${(listings?.reduce((sum, listing) => sum + (listing.price || 0), 0) || 0).toFixed(0)}
                           </p>
                           <p className="text-sm text-muted-foreground">Total Value</p>
                         </div>
@@ -904,24 +942,18 @@ export default function DashboardPage() {
                           Try Again
                         </Button>
                         </div>
-                      ) : listings.length > 0 ? (
-                      listings.map((listing) => (
+                      ) : (listings?.length || 0) > 0 ? (
+                      (listings || []).map((listing) => (
                         <Card
                               key={listing.id}
                           className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm"
                             >
                           <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-                                {listing.images && listing.images.length > 0 ? (
-                                  <img
-                                src={listing.images[0]}
-                                    alt={listing.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                <Package className="h-16 w-16 text-gray-400" />
-                                  </div>
-                                )}
+                                <img
+                                  src="/iphone-13-pro-graphite.jpg"
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
                             <div className="absolute top-3 right-3">
                               <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 listing.is_sold 
@@ -991,7 +1023,7 @@ export default function DashboardPage() {
                     <Card className="p-4 bg-yellow-50 border-yellow-200">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-yellow-600">
-                          {orders.filter(o => o.status === 'PENDING').length}
+                          {(orders || []).filter(o => o.status === 'PENDING').length}
                         </p>
                         <p className="text-sm text-yellow-700">Pending</p>
                                     </div>
@@ -999,7 +1031,7 @@ export default function DashboardPage() {
                     <Card className="p-4 bg-blue-50 border-blue-200">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-blue-600">
-                          {orders.filter(o => o.status === 'PROCESSING').length}
+                          {(orders || []).filter(o => o.status === 'PROCESSING').length}
                         </p>
                         <p className="text-sm text-blue-700">Processing</p>
                                     </div>
@@ -1007,7 +1039,7 @@ export default function DashboardPage() {
                     <Card className="p-4 bg-green-50 border-green-200">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-green-600">
-                          {orders.filter(o => o.status === 'SHIPPED').length}
+                          {(orders || []).filter(o => o.status === 'SHIPPED').length}
                         </p>
                         <p className="text-sm text-green-700">Shipped</p>
                                   </div>
@@ -1015,7 +1047,7 @@ export default function DashboardPage() {
                     <Card className="p-4 bg-gray-50 border-gray-200">
                       <div className="text-center">
                         <p className="text-2xl font-bold text-gray-600">
-                          {orders.filter(o => o.status === 'DELIVERED').length}
+                          {(orders || []).filter(o => o.status === 'DELIVERED').length}
                         </p>
                         <p className="text-sm text-gray-700">Delivered</p>
                                 </div>
@@ -1050,9 +1082,9 @@ export default function DashboardPage() {
                           Try Again
                         </Button>
                                     </div>
-                    ) : orders.length > 0 ? (
+                    ) : (orders?.length || 0) > 0 ? (
                       <div className="space-y-4">
-                        {orders.slice(0, 5).map((order) => (
+                        {(orders || []).slice(0, 5).map((order) => (
                           <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                             <div className="flex items-center gap-4">
                               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -1227,7 +1259,7 @@ export default function DashboardPage() {
                     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-amber-100 to-orange-200">
                       <div className="aspect-[4/5] relative overflow-hidden">
                         <img
-                          src="/placeholder.jpg"
+                          src="/iphone-13-pro-graphite.jpg"
                           alt="Shoes Collection"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
@@ -1258,21 +1290,15 @@ export default function DashboardPage() {
                           </div>
                         </Card>
                       ))
-                    ) : products.length > 0 ? (
-                      products.slice(0, 8).map((product) => (
+                    ) : (products?.length || 0) > 0 ? (
+                      (products || []).slice(0, 8).map((product) => (
                         <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                           <div className="aspect-square relative overflow-hidden bg-gray-100">
-                            {product.images && product.images.length > 0 ? (
-                              <img
-                                src={product.images[0]}
-                                alt={product.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                <ShoppingBag className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
+                            <img
+                              src="/iphone-13-pro-graphite.jpg"
+                              alt={product.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
                             <div className="absolute top-3 right-3">
                               <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0 bg-white/80">
                                 <Heart className="h-4 w-4" />
@@ -1407,21 +1433,15 @@ export default function DashboardPage() {
                           </div>
                         </Card>
                       ))
-                    ) : products.length > 0 ? (
-                      products.slice(0, 8).map((product) => (
+                    ) : (products?.length || 0) > 0 ? (
+                      (products || []).slice(0, 8).map((product) => (
                         <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                           <div className="aspect-square relative overflow-hidden bg-gray-100">
-                            {product.images && product.images.length > 0 ? (
-                              <img
-                                src={product.images[0]}
-                                alt={product.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-                                <Gift className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
+                            <img
+                              src="/iphone-13-pro-graphite.jpg"
+                              alt={product.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
                             <div className="absolute top-3 right-3">
                               <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0 bg-white/80">
                                 <Heart className="h-4 w-4" />
@@ -1573,21 +1593,15 @@ export default function DashboardPage() {
                           </div>
                         </Card>
                       ))
-                    ) : products.length > 0 ? (
-                      products.slice(0, 8).map((product) => (
+                    ) : (products?.length || 0) > 0 ? (
+                      (products || []).slice(0, 8).map((product) => (
                         <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm">
                           <div className="aspect-square relative overflow-hidden bg-gray-100">
-                            {product.images && product.images.length > 0 ? (
-                              <img
-                                src={product.images[0]}
-                                alt={product.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                                <Lightbulb className="h-16 w-16 text-gray-400" />
-                              </div>
-                            )}
+                            <img
+                              src={product.images?.[0] || "/placeholder.jpg"}
+                              alt={product.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
                             <div className="absolute top-3 right-3">
                               <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0 bg-white/80">
                                 <Heart className="h-4 w-4" />

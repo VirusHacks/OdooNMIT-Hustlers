@@ -505,7 +505,7 @@ export default function BrowsePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <Navigation />
       
-      <main className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6">
         <div className="flex gap-6">
         {/* Sidebar */}
         <motion.aside
@@ -1248,8 +1248,8 @@ export default function BrowsePage() {
             )}
           </div>
         </main>
+        </div>
       </div>
-      </main>
     </div>
   )
 }
