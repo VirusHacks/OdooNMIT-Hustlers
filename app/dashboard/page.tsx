@@ -27,6 +27,7 @@ import {
   TrendingUp,
   Eye,
   Heart,
+  DollarSign,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
@@ -45,6 +46,39 @@ interface UserProfile {
   bio: string | null
   location: string | null
   createdAt: string
+}
+
+interface Listing {
+  id: string
+  title: string
+  price: number
+  images: string[]
+  created_at: string
+  is_sold: boolean
+}
+
+interface Order {
+  id: string
+  order_number: string
+  total_amount: number
+  status: string
+  created_at: string
+  users_orders_seller_idTousers: {
+    id: string
+    name: string
+    location: string
+  }
+  order_items: {
+    id: string
+    quantity: number
+    price: number
+    listings: {
+      id: string
+      title: string
+      images: string[]
+      price: number
+    }
+  }[]
 }
 
 const containerVariants = {
@@ -90,6 +124,10 @@ export default function DashboardPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [listings, setListings] = useState<Listing[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isLoadingListings, setIsLoadingListings] = useState(false)
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false)
   const [editForm, setEditForm] = useState({
     name: "",
     bio: "",
@@ -103,6 +141,8 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       fetchProfile()
+      fetchListings()
+      fetchOrders()
     }
   }, [user])
 
@@ -218,6 +258,40 @@ export default function DashboardPage() {
     })
   }
 
+  const fetchListings = async () => {
+    setIsLoadingListings(true)
+    try {
+      const response = await fetch("/api/my-listings")
+      if (response.ok) {
+        const data = await response.json()
+        setListings(data.listings || [])
+      } else {
+        console.error("Failed to fetch listings:", response.statusText)
+      }
+    } catch (error) {
+      console.error("Failed to fetch listings:", error)
+    } finally {
+      setIsLoadingListings(false)
+    }
+  }
+
+  const fetchOrders = async () => {
+    setIsLoadingOrders(true)
+    try {
+      const response = await fetch("/api/orders")
+      if (response.ok) {
+        const data = await response.json()
+        setOrders(data.orders || [])
+      } else {
+        console.error("Failed to fetch orders:", response.statusText)
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error)
+    } finally {
+      setIsLoadingOrders(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
@@ -305,7 +379,9 @@ export default function DashboardPage() {
                   </div>
                   <TrendingUp className="h-5 w-5 text-green-500" />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">0</h3>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
+                  {isLoadingListings ? "..." : listings.length}
+                </h3>
                 <p className="text-slate-600 dark:text-slate-400 font-medium">Active Listings</p>
               </div>
             </motion.div>
@@ -322,7 +398,9 @@ export default function DashboardPage() {
                   </div>
                   <Eye className="h-5 w-5 text-slate-400" />
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">0</h3>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
+                  {isLoadingOrders ? "..." : orders.length}
+                </h3>
                 <p className="text-slate-600 dark:text-slate-400 font-medium">Total Orders</p>
               </div>
             </motion.div>
@@ -581,28 +659,80 @@ export default function DashboardPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="relative">
-                      <div className="text-center py-16">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.2, duration: 0.5 }}
-                          className="mb-6"
-                        >
-                          <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/10 dark:to-purple-400/10 flex items-center justify-center mb-6">
-                            <Package className="h-12 w-12 text-slate-400 dark:text-slate-500" />
-                          </div>
-                        </motion.div>
-                        <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No listings yet</h3>
-                        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
-                          Start selling by creating your first listing and reach thousands of potential buyers
-                        </p>
-                        <Button
-                          asChild
-                          className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 px-8 py-3 transition-all duration-300 hover:shadow-lg"
-                        >
-                          <Link href="/add-product">Create Listing</Link>
-                        </Button>
-                      </div>
+                      {isLoadingListings ? (
+                        <div className="flex items-center justify-center py-16">
+                          <LoadingSpinner size="lg" />
+                        </div>
+                      ) : listings.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {listings.map((listing, index) => (
+                            <motion.div
+                              key={listing.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="group relative overflow-hidden rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl transition-all duration-300"
+                            >
+                              <div className="aspect-square relative overflow-hidden">
+                                {listing.images && listing.images.length > 0 ? (
+                                  <img
+                                    src={listing.images[0] || "/placeholder.svg"}
+                                    alt={listing.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
+                                    <Package className="h-12 w-12 text-slate-400" />
+                                  </div>
+                                )}
+                                {listing.is_sold && (
+                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <Badge className="bg-red-500 text-white">SOLD</Badge>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-4">
+                                <h3 className="font-semibold text-slate-900 dark:text-white mb-2 line-clamp-2">
+                                  {listing.title}
+                                </h3>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-lg font-bold text-slate-900 dark:text-white">
+                                    ${listing.price}
+                                  </span>
+                                  <span className="text-sm text-slate-500 dark:text-slate-400">
+                                    {new Date(listing.created_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-16">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="mb-6"
+                          >
+                            <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/10 dark:to-purple-400/10 flex items-center justify-center mb-6">
+                              <Package className="h-12 w-12 text-slate-400 dark:text-slate-500" />
+                            </div>
+                          </motion.div>
+                          <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">
+                            No listings yet
+                          </h3>
+                          <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
+                            Start selling by creating your first listing and reach thousands of potential buyers
+                          </p>
+                          <Button
+                            asChild
+                            className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 px-8 py-3 transition-all duration-300 hover:shadow-lg"
+                          >
+                            <Link href="/add-product">Create Listing</Link>
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -622,28 +752,109 @@ export default function DashboardPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="relative">
-                      <div className="text-center py-16">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.2, duration: 0.5 }}
-                          className="mb-6"
-                        >
-                          <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/10 dark:to-emerald-400/10 flex items-center justify-center mb-6">
-                            <ShoppingBag className="h-12 w-12 text-slate-400 dark:text-slate-500" />
-                          </div>
-                        </motion.div>
-                        <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No orders yet</h3>
-                        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
-                          Start shopping to see your orders here and track your purchases
-                        </p>
-                        <Button
-                          asChild
-                          className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 px-8 py-3 transition-all duration-300 hover:shadow-lg"
-                        >
-                          <Link href="/browse">Browse Items</Link>
-                        </Button>
-                      </div>
+                      {isLoadingOrders ? (
+                        <div className="flex items-center justify-center py-16">
+                          <LoadingSpinner size="lg" />
+                        </div>
+                      ) : orders.length > 0 ? (
+                        <div className="space-y-6">
+                          {orders.map((order, index) => (
+                            <motion.div
+                              key={order.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="group relative overflow-hidden rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl transition-all duration-300 p-6"
+                            >
+                              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+                                <div>
+                                  <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
+                                    Order #{order.order_number}
+                                  </h3>
+                                  <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="h-4 w-4" />
+                                      {new Date(order.created_at).toLocaleDateString()}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <User className="h-4 w-4" />
+                                      {order.users_orders_seller_idTousers.name}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <Badge
+                                    variant={order.status === "PENDING" ? "secondary" : "default"}
+                                    className="capitalize"
+                                  >
+                                    {order.status.toLowerCase()}
+                                  </Badge>
+                                  <div className="text-right">
+                                    <div className="flex items-center gap-1 text-lg font-bold text-slate-900 dark:text-white">
+                                      <DollarSign className="h-4 w-4" />
+                                      {order.total_amount}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                {order.order_items.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className="flex items-center gap-4 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-700/30"
+                                  >
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
+                                      {item.listings.images && item.listings.images.length > 0 ? (
+                                        <img
+                                          src={item.listings.images[0] || "/placeholder.svg"}
+                                          alt={item.listings.title}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <Package className="h-6 w-6 text-slate-400" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-medium text-slate-900 dark:text-white truncate">
+                                        {item.listings.title}
+                                      </h4>
+                                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        Quantity: {item.quantity} × ${item.price}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-16">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="mb-6"
+                          >
+                            <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/10 dark:to-emerald-400/10 flex items-center justify-center mb-6">
+                              <ShoppingBag className="h-12 w-12 text-slate-400 dark:text-slate-500" />
+                            </div>
+                          </motion.div>
+                          <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No orders yet</h3>
+                          <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
+                            Start shopping to see your orders here and track your purchases
+                          </p>
+                          <Button
+                            asChild
+                            className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 px-8 py-3 transition-all duration-300 hover:shadow-lg"
+                          >
+                            <Link href="/browse">Browse Items</Link>
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
