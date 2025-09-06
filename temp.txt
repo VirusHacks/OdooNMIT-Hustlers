@@ -5,3 +5,4 @@
 // Create product listing model and basic CRUD operations
 // Build Add Product form with validation
 // Integrate category dropdown and placeholder image upload
+// Set up product browsing page with listing cards
