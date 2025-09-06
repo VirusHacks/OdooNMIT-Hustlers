@@ -1,3 +1,4 @@
 
 // Initialize project setup with base React + Tailwind config
 // Add user authentication (login & signup flow)
+// Implement user dashboard with editable profile fields
